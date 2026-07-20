@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tareas Disponibles</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
+        .tarea-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .nav { margin-bottom: 20px; background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        Bienvenido, <strong>{{ nombre }}</strong> | 
+        <a href="/mis-entregas">Ver mis tareas enviadas</a> | 
+        <a href="/logout">Cerrar Sesión</a>
+    </div>
+
+    <h2>Tareas Disponibles en Tiempo Real</h2>
+    
+    {% for tarea in tareas %}
+    <div class="tarea-card">
+        <h3>[{{ tarea.codigo }}] - {{ tarea.titulo }}</h3>
+        <p><strong>Descripción:</strong> {{ tarea.descripcion }}</p>
+        <p style="color: red;"><strong>Fecha Límite:</strong> {{ tarea.fecha_limite }}</p>
+        
+        <!-- Este formulario envía los datos a la ruta que programará tu compañero (Estudiante 4) -->
+        <form action="/agregar" method="POST">
+            <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+            <label>Escribe tu respuesta aquí:</label>
+            <textarea name="respuesta" rows="4" style="width:100%; margin-top:5px;" required></textarea>
+            <button type="submit" style="margin-top:10px; padding:8px 15px;">Enviar Tarea</button>
+        </form>
+    </div>
+    {% endfor %}
+</body>
+</html>

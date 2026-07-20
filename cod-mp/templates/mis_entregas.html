@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Entregas</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+        .entrega { background-color: #f9f9f9; padding: 15px; border-left: 5px solid #28a745; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <a href="/">Volver a la lista de tareas</a>
+    <h2>Tus Entregas Registradas</h2>
+
+    {% if entregas %}
+        {% for entrega in entregas %}
+        <div class="entrega">
+            <h4>Tarea: {{ entrega.titulo }}</h4>
+            <p><strong>Tu Respuesta Enviada:</strong></p>
+            <p>{{ entrega.respuesta }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Aún no has realizado ninguna entrega.</p>
+    {% endif %}
+</body>
+</html>
