@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # Base de Datos Principal (Master)
+  mysql_principal:
+    image: mysql:8.0
+    container_name: mysql_principal
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: informacion
+    ports:
+      - "3308:3306"
+    command: --server-id=1 --log-bin=mysql-bin --gtid_mode=ON --enforce_gtid_consistency=ON
+    volumes:
+      - ./db-init/init-master.sql:/docker-entrypoint-initdb.d/init-master.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - red-distribuida
+
+  # Base de Datos Réplica (Slave)
+  mysql_replica:
+    image: mysql:8.0
+    container_name: mysql_replica
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3309:3306"
+    command: --server-id=2 --log-bin=mysql-bin --gtid_mode=ON --enforce_gtid_consistency=ON --read_only=ON
+    volumes:
+      - ./db-init/setup-replica.sh:/docker-entrypoint-initdb.d/setup-replica.sh
+    depends_on:
+      mysql_principal:
+        condition: service_healthy
+    networks:
+      - red-distribuida
+
+  # Aplicación - Nodo 1 (Peso 3 - Alta Capacidad)
+  app1:
+    build:
+      context: .
+      dockerfile: App/Dockerfile
+    container_name: app1
+    restart: always
+    environment:
+      - NODE_NAME=Nodo 1 (Capacidad Alta)
+      - NODE_PORT=5001
+      - PYTHONUNBUFFERED=1
+    command: python App/app.py
+    ports:
+      - "5001:5001"
+    depends_on:
+      mysql_principal:
+        condition: service_healthy
+      mysql_replica:
+        condition: service_started
+    networks:
+      - red-distribuida
+
+  # Aplicación - Nodo 2 (Peso 2 - Capacidad Media)
+  app2:
+    build:
+      context: .
+      dockerfile: App/Dockerfile
+    container_name: app2
+    restart: always
+    environment:
+      - NODE_NAME=Nodo 2 (Capacidad Media)
+      - NODE_PORT=5002
+      - PYTHONUNBUFFERED=1
+    command: python App/app.py
+    ports:
+      - "5002:5002"
+    depends_on:
+      mysql_principal:
+        condition: service_healthy
+      mysql_replica:
+        condition: service_started
+    networks:
+      - red-distribuida
+
+  # Aplicación - Nodo 3 (Peso 1 - Capacidad Baja)
+  app3:
+    build:
+      context: .
+      dockerfile: App/Dockerfile
+    container_name: app3
+    restart: always
+    environment:
+      - NODE_NAME=Nodo 3 (Capacidad Baja)
+      - NODE_PORT=5003
+      - PYTHONUNBUFFERED=1
+    command: python App/app.py
+    ports:
+      - "5003:5003"
+    depends_on:
+      mysql_principal:
+        condition: service_healthy
+      mysql_replica:
+        condition: service_started
+    networks:
+      - red-distribuida
+
+  # Balanceador de Carga NGINX
+  nginx_balancer:
+    image: nginx:latest
+    container_name: nginx_balancer
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
+    networks:
+      - red-distribuida
+
+  # Administrador de Base de Datos (phpMyAdmin)
+  db_admin:
+    image: phpmyadmin:latest
+    container_name: db_admin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=mysql_principal,mysql_replica
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    depends_on:
+      mysql_principal:
+        condition: service_healthy
+    networks:
+      - red-distribuida
+
+networks:
+  red-distribuida:
+    driver: bridge

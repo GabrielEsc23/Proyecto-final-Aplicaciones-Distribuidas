@@ -2,19 +2,239 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión - Tareas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula Virtual EPN - Iniciar Sesión</title>
+    <!-- Importar Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 100px auto; padding: 20px; border: 1px solid #ccc; }
-        input { width: 100%; padding: 8px; margin-bottom: 15px; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; }
+        :root {
+            --epn-blue: #0c2340;
+            --epn-blue-light: #16365c;
+            --epn-gold: #f2b807;
+            --bg-gray: #f4f6f9;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --border-color: #cbd5e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Cabecera superior */
+        .epn-header {
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--epn-gold);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .epn-brand {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .epn-brand .gold-text {
+            color: var(--epn-gold);
+        }
+
+        .epn-brand .divider {
+            height: 20px;
+            width: 1px;
+            background-color: rgba(255,255,255,0.3);
+            display: inline-block;
+        }
+
+        .epn-brand .sub-brand {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #e2e8f0;
+        }
+
+        /* Contenido Central */
+        .login-main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.03);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .login-card-header {
+            background-color: #f8fafc;
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .login-card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--epn-blue);
+        }
+
+        .login-card-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .login-card-body {
+            padding: 30px 24px;
+        }
+
+        .alert-error {
+            background-color: #fff5f5;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            border: 1px solid #fed7d7;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--epn-blue);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #ffffff;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--epn-blue);
+            box-shadow: 0 0 0 3px rgba(12, 35, 64, 0.15);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--epn-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-login:hover {
+            background-color: var(--epn-blue-light);
+        }
+
+        /* Footer del Servidor */
+        .server-footer {
+            background-color: #edf2f7;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .badge-node {
+            display: inline-block;
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body>
-    <h2>Plataforma de Tareas - Login</h2>
-    <form action="/login" method="POST">
-        <label>Correo Institucional del Estudiante:</label>
-        <input type="email" name="correo" required placeholder="ejemplo@epn.edu.ec">
-        <button type="submit">Ingresar</button>
-    </form>
+
+    <!-- Cabecera -->
+    <header class="epn-header">
+        <div class="epn-brand">
+            <span>EPN <span class="gold-text">virtual</span></span>
+            <span class="divider"></span>
+            <span class="sub-brand">Aulas Virtuales</span>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="login-main">
+        <div class="login-card">
+            <div class="login-card-header">
+                <h2>Acceso de Estudiantes</h2>
+                <p>Identifícate con tus credenciales institucionales</p>
+            </div>
+            
+            <div class="login-card-body">
+                {% if error %}
+                <div class="alert-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form action="/login" method="POST">
+                    <div class="form-group">
+                        <label for="correo">Correo Electrónico EPN</label>
+                        <input type="email" id="correo" name="correo" required 
+                               placeholder="ejemplo@epn.edu.ec" 
+                               value="{{ request.form.get('correo', '') }}">
+                    </div>
+                    
+                    <button type="submit" class="btn-login">Ingresar</button>
+                </form>
+            </div>
+
+            <div class="server-footer">
+                Atendido por: <span class="badge-node">{{ server_name }}</span> | Puerto: <strong>{{ server_port }}</strong>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>

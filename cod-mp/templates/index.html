@@ -2,36 +2,565 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tareas Disponibles</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aulas Virtuales EPN - Aplicaciones Distribuidas</title>
+    <!-- Importar Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
-        .tarea-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .nav { margin-bottom: 20px; background: #f4f4f4; padding: 10px; }
+        :root {
+            --epn-blue: #0c2340;
+            --epn-blue-light: #16365c;
+            --epn-gold: #f2b807;
+            --bg-gray: #f4f6f9;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            
+            /* Colores Pastel para Estados */
+            --state-open-bg: #e0f2fe;
+            --state-open-txt: #0369a1;
+            --state-done-bg: #d1fae5;
+            --state-done-txt: #065f46;
+            --state-expired-bg: #fee2e2;
+            --state-expired-txt: #991b1b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Cabecera EPN (Moodle Style) */
+        .epn-header {
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--epn-gold);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .epn-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .epn-brand .gold-text {
+            color: var(--epn-gold);
+        }
+
+        .epn-nav-links {
+            display: flex;
+            gap: 15px;
+            margin-left: 20px;
+        }
+
+        .epn-nav-links a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .epn-nav-links a:hover, .epn-nav-links a.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #edf2f7;
+        }
+
+        .btn-logout {
+            color: var(--epn-gold);
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--epn-gold);
+            padding: 4px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--epn-gold);
+            color: var(--epn-blue);
+        }
+
+        /* Contenedor Principal (Dos Columnas) */
+        .main-layout {
+            max-width: 1250px;
+            width: 100%;
+            margin: 25px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            flex: 1;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sección Izquierda: Tareas */
+        .content-section h2.section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--epn-blue);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .tarea-card {
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            overflow: hidden;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .tarea-card:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            border-color: #cbd5e0;
+        }
+
+        .tarea-card-header {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tarea-code-prefix {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .tarea-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--epn-blue);
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .status-open { background-color: var(--state-open-bg); color: var(--state-open-txt); }
+        .status-done { background-color: var(--state-done-bg); color: var(--state-done-txt); }
+        .status-expired { background-color: var(--state-expired-bg); color: var(--state-expired-txt); }
+
+        .tarea-card-body {
+            padding: 20px;
+        }
+
+        .tarea-description {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .tarea-meta {
+            font-size: 0.82rem;
+            background-color: #f7fafc;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #edf2f7;
+        }
+
+        .meta-expired {
+            color: var(--state-expired-txt);
+            font-weight: 500;
+        }
+
+        .meta-active {
+            color: var(--state-open-txt);
+            font-weight: 500;
+        }
+
+        /* Formulario de envío */
+        .submission-form {
+            border-top: 1px solid #edf2f7;
+            padding-top: 15px;
+        }
+
+        .submission-form label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--epn-blue);
+            margin-bottom: 6px;
+        }
+
+        .submission-form textarea {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #ffffff;
+            color: var(--text-main);
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .submission-form textarea:focus {
+            border-color: var(--epn-blue);
+            box-shadow: 0 0 0 3px rgba(12, 35, 64, 0.1);
+        }
+
+        .btn-submit {
+            background-color: var(--epn-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--epn-blue-light);
+        }
+
+        /* Mensajes de estado completados */
+        .msg-container {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .msg-success {
+            background-color: var(--state-done-bg);
+            color: var(--state-done-txt);
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        .msg-error {
+            background-color: var(--state-expired-bg);
+            color: var(--state-expired-txt);
+            border: 1px solid rgba(245, 101, 101, 0.2);
+        }
+
+        /* Sección Derecha: Widgets (Moodle Blocks) */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .widget-block {
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+
+        .widget-header {
+            padding: 12px 16px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--epn-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .widget-body {
+            padding: 16px;
+        }
+
+        /* Eventos Próximos */
+        .event-item {
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .event-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: var(--epn-blue);
+            margin-bottom: 2px;
+        }
+
+        .event-date {
+            color: var(--text-muted);
+        }
+
+        .event-type-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .badge-red { background-color: #fc8181; }
+        .badge-blue { background-color: #63b3ed; }
+
+        /* Widget Infraestructura */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #edf2f7;
+            align-items: center;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        .badge-node-active {
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .status-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #48bb78;
+            border-radius: 50%;
+            margin-right: 4px;
+            box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(72, 187, 120, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="nav">
-        Bienvenido, <strong>{{ nombre }}</strong> | 
-        <a href="/mis-entregas">Ver mis tareas enviadas</a> | 
-        <a href="/logout">Cerrar Sesión</a>
-    </div>
 
-    <h2>Tareas Disponibles en Tiempo Real</h2>
-    
-    {% for tarea in tareas %}
-    <div class="tarea-card">
-        <h3>[{{ tarea.codigo }}] - {{ tarea.titulo }}</h3>
-        <p><strong>Descripción:</strong> {{ tarea.descripcion }}</p>
-        <p style="color: red;"><strong>Fecha Límite:</strong> {{ tarea.fecha_limite }}</p>
+    <!-- Cabecera EPN -->
+    <header class="epn-header">
+        <div class="header-left">
+            <div class="epn-brand">
+                <span>EPN <span class="gold-text">virtual</span></span>
+            </div>
+            <nav class="epn-nav-links">
+                <a href="/" class="active">Dashboard</a>
+                <a href="/mis-entregas">Mis Entregas</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <span class="user-name">{{ nombre }}</span>
+            <a href="/logout" class="btn-logout">Salir</a>
+        </div>
+    </header>
+
+    <!-- Contenedor de dos columnas -->
+    <main class="main-layout">
         
-        <!-- Este formulario envía los datos a la ruta que programará tu compañero (Estudiante 4) -->
-        <form action="/agregar" method="POST">
-            <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
-            <label>Escribe tu respuesta aquí:</label>
-            <textarea name="respuesta" rows="4" style="width:100%; margin-top:5px;" required></textarea>
-            <button type="submit" style="margin-top:10px; padding:8px 15px;">Enviar Tarea</button>
-        </form>
-    </div>
-    {% endfor %}
+        <!-- Columna Izquierda: Listado de Tareas -->
+        <section class="content-section">
+            <h2 class="section-title">Vista general de tareas</h2>
+            
+            {% for tarea in tareas %}
+                {% set is_expired = ahora > tarea.fecha_limite %}
+                {% set is_submitted = tarea.id in entregadas %}
+                
+                <div class="tarea-card">
+                    <div class="tarea-card-header">
+                        <div>
+                            <span class="tarea-code-prefix">(RRA20) DESARROLLO DE SOFTWARE 2026-A</span>
+                            <h3 class="tarea-title">[{{ tarea.codigo }}] - {{ tarea.titulo }}</h3>
+                        </div>
+                        <div>
+                            {% if is_submitted %}
+                                <span class="badge-status status-done">Entregada</span>
+                            {% elif is_expired %}
+                                <span class="badge-status status-expired">Plazo Vencido</span>
+                            {% else %}
+                                <span class="badge-status status-open">Disponible</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="tarea-card-body">
+                        <p class="tarea-description">{{ tarea.descripcion }}</p>
+                        
+                        <div class="tarea-meta {% if is_expired %}meta-expired{% else %}meta-active{% endif %}">
+                            ⏰ Fecha límite: {{ tarea.fecha_limite.strftime('%A, %d de %B de %Y, %H:%M') }}
+                        </div>
+                        
+                        {% if is_submitted %}
+                            <div class="msg-container msg-success">
+                                ✓ Respuesta registrada con éxito en el sistema. Puedes ver tu respuesta en "Mis Entregas".
+                            </div>
+                        {% elif is_expired %}
+                            <div class="msg-container msg-error">
+                                ✗ No es posible realizar entregas. El plazo establecido de esta tarea ha finalizado.
+                            </div>
+                        {% else %}
+                            <form action="/agregar" method="POST" class="submission-form">
+                                <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
+                                <label for="respuesta_{{ tarea.id }}">Realizar entrega en texto:</label>
+                                <textarea id="respuesta_{{ tarea.id }}" name="respuesta" rows="4" placeholder="Escribe tu respuesta a la tarea aquí..." required></textarea>
+                                <button type="submit" class="btn-submit">Guardar cambios</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+
+        <!-- Columna Derecha: Widgets (Moodle Blocks) -->
+        <aside class="sidebar">
+            
+            <!-- Widget de Infraestructura Distribuida -->
+            <div class="widget-block">
+                <div class="widget-header">
+                    Estado del Sistema
+                </div>
+                <div class="widget-body">
+                    <div class="info-row">
+                        <span class="info-label">Balanceador NGINX:</span>
+                        <span class="info-value"><span class="status-pulse"></span>Activo (Puerto 80)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Nodo Atendiendo:</span>
+                        <span class="info-value"><span class="badge-node-active">{{ server_name }}</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Puerto Interno:</span>
+                        <span class="info-value"><strong>{{ server_port }}</strong></span>
+                    </div>
+                    <div class="info-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #edf2f7;">
+                        <span class="info-label">DB Escritura (Master):</span>
+                        <span class="info-value" style="color: #4a5568;">mysql_principal</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">DB Lectura (Replica):</span>
+                        <span class="info-value" style="color: #4a5568;">mysql_replica</span>
+                    </div>
+                    <div class="info-row" style="font-size: 0.72rem; color: var(--text-muted); text-align: center; justify-content: center; margin-top: 10px;">
+                        <span>*Refresca la página para ver el balanceo de carga.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget Eventos Próximos -->
+            <div class="widget-block">
+                <div class="widget-header">
+                    Eventos próximos
+                </div>
+                <div class="widget-body">
+                    {% for tarea in tareas %}
+                        {% set is_expired = ahora > tarea.fecha_limite %}
+                        <div class="event-item">
+                            <div class="event-title">
+                                <span class="event-type-badge {% if is_expired %}badge-red{% else %}badge-blue{% endif %}"></span>
+                                {{ tarea.titulo }}
+                            </div>
+                            <div class="event-date">
+                                {{ tarea.fecha_limite.strftime('%d %b, %H:%M') }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </aside>
+        
+    </main>
+
 </body>
 </html>

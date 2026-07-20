@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula Virtual EPN - Resultado</title>
+    <!-- Importar Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --epn-blue: #0c2340;
+            --epn-blue-light: #16365c;
+            --epn-gold: #f2b807;
+            --bg-gray: #f4f6f9;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            
+            --error-bg: #fee2e2;
+            --error-txt: #991b1b;
+            --error-border: #fca5a5;
+            --success-bg: #d1fae5;
+            --success-txt: #065f46;
+            --success-border: #6ee7b7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Cabecera EPN */
+        .epn-header {
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--epn-gold);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            width: 100%;
+        }
+
+        .epn-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .epn-brand .gold-text {
+            color: var(--epn-gold);
+        }
+
+        /* Contenedor del Mensaje */
+        .result-main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .result-card {
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            width: 100%;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .circle-error {
+            background-color: var(--error-bg);
+            color: var(--error-txt);
+            border: 2px solid var(--error-border);
+        }
+
+        .circle-success {
+            background-color: var(--success-bg);
+            color: var(--success-txt);
+            border: 2px solid var(--success-border);
+        }
+
+        .result-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .title-error { color: var(--error-txt); }
+        .title-success { color: var(--success-txt); }
+
+        .result-message {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background-color: var(--epn-blue);
+            color: white;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: var(--epn-blue-light);
+        }
+
+        .server-footer {
+            margin-top: 20px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            border-top: 1px solid #edf2f7;
+            padding-top: 12px;
+        }
+
+        .badge-node {
+            display: inline-block;
+            background-color: var(--epn-blue);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.68rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabecera EPN -->
+    <header class="epn-header">
+        <div class="epn-brand">
+            <span>EPN <span class="gold-text">virtual</span></span>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="result-main">
+        <div class="result-card">
+            {% if status == 'success' %}
+                <div class="icon-circle circle-success">✓</div>
+                <h2 class="result-title title-success">¡Operación Exitosa!</h2>
+            {% else %}
+                <div class="icon-circle circle-error">✗</div>
+                <h2 class="result-title title-error">Ha ocurrido un problema</h2>
+            {% endif %}
+
+            <p class="result-message">{{ mensaje }}</p>
+
+            <a href="javascript:history.back()" class="btn-back">← Volver al Aula Virtual</a>
+            
+            <div class="server-footer">
+                Procesado por: <span class="badge-node">{{ server_name }}</span> | Puerto: <strong>{{ server_port }}</strong>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
