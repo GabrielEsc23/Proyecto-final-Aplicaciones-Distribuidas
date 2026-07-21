@@ -4,11 +4,12 @@ SET NAMES 'utf8mb4';
 CREATE DATABASE IF NOT EXISTS informacion;
 USE informacion;
 
--- 1. Tabla Usuarios (unificada para Estudiantes y Administradores)
+-- 1. Tabla Usuarios (unificada para Estudiantes y Administradores con Contraseña)
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL DEFAULT '123456',
     rol VARCHAR(20) DEFAULT 'estudiante'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -33,12 +34,12 @@ CREATE TABLE IF NOT EXISTS entregas (
     UNIQUE KEY unica_entrega (usuario_id, tarea_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Datos Semilla: Usuarios de prueba (Estudiantes y Administrador)
-INSERT IGNORE INTO usuarios (id, nombre, correo, rol) VALUES
-(1, 'Gabriel Escobar', 'gabriel.escobar@epn.edu.ec', 'estudiante'),
-(2, 'Ana Belén Guevara', 'ana.belen@epn.edu.ec', 'estudiante'),
-(3, 'Estudiante de Prueba', 'prueba@epn.edu.ec', 'estudiante'),
-(4, 'Administrador EPN', 'admin@epn.edu.ec', 'admin');
+-- Datos Semilla: Usuarios de prueba con contraseña (Estudiantes y Administrador)
+INSERT IGNORE INTO usuarios (id, nombre, correo, password, rol) VALUES
+(1, 'Gabriel Escobar', 'gabriel.escobar@epn.edu.ec', '123456', 'estudiante'),
+(2, 'Ana Belén Guevara', 'ana.belen@epn.edu.ec', '123456', 'estudiante'),
+(3, 'Estudiante de Prueba', 'prueba@epn.edu.ec', '123456', 'estudiante'),
+(4, 'Administrador EPN', 'admin@epn.edu.ec', 'admin123', 'admin');
 
 -- Datos Semilla: Tareas del período (con plazos válidos y uno ya expirado para validaciones)
 INSERT IGNORE INTO tareas (id, codigo, titulo, descripcion, fecha_limite) VALUES

@@ -48,6 +48,7 @@ def login():
     error_msg = None
     if request.method == "POST":
         correo = request.form["correo"].strip()
+        password = request.form["password"].strip()
         
         # Lectura de login va a la réplica
         conexion = conectar_replica()
@@ -62,7 +63,8 @@ def login():
             cursor.close()
             conexion.close()
 
-        if usuario:
+        # Validar existencia de usuario y contraseña
+        if usuario and usuario.get("password") == password:
             session["usuario_id"] = usuario["id"]
             session["nombre"] = usuario["nombre"]
             session["rol"] = usuario["rol"]
@@ -72,7 +74,7 @@ def login():
                 return redirect(url_for("admin_panel"))
             return redirect(url_for("index"))
         elif not error_msg:
-            error_msg = "El correo no está registrado en el sistema."
+            error_msg = "Correo o contraseña incorrectos."
             
     return render_template("login.html", 
                            error=error_msg, 
@@ -242,7 +244,7 @@ def admin_panel():
     conexion = conectar_replica()
     cursor = conexion.cursor(dictionary=True)
     
-    cursor.execute("SELECT id, nombre, correo, rol FROM usuarios ORDER BY id DESC")
+    cursor.execute("SELECT id, nombre, correo, password, rol FROM usuarios ORDER BY id DESC")
     lista_usuarios = cursor.fetchall()
     
     cursor.execute("SELECT id, codigo, titulo, fecha_limite FROM tareas ORDER BY id DESC")
@@ -266,12 +268,13 @@ def crear_usuario():
         
     nombre = request.form["nombre"].strip()
     correo = request.form["correo"].strip()
+    password = request.form["password"].strip()
     rol = request.form["rol"].strip()
     
-    if not nombre or not correo or not rol:
+    if not nombre or not correo or not password or not rol:
         return render_template("resultado.html", 
                                status="error", 
-                               mensaje="Todos los campos del usuario son requeridos.", 
+                               mensaje="Todos los campos del usuario (incluyendo la contraseña) son requeridos.", 
                                server_name=NODE_NAME, 
                                server_port=NODE_PORT), 400
                                
@@ -282,8 +285,8 @@ def crear_usuario():
     error_db = ""
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, rol) VALUES (%s, %s, %s)",
-            (nombre, correo, rol)
+            "INSERT INTO usuarios (nombre, correo, password, rol) VALUES (%s, %s, %s, %s)",
+            (nombre, correo, password, rol)
         )
         conexion.commit()
         success = True
