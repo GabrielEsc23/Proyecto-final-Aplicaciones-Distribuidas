@@ -9,9 +9,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: informacion
+      TZ: America/Guayaquil
     ports:
       - "3308:3306"
-    command: --server-id=1 --log-bin=mysql-bin --gtid_mode=ON --enforce_gtid_consistency=ON
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce_gtid_consistency=ON
+      --default-time-zone=-05:00
     volumes:
       - ./db-init/init-master.sql:/docker-entrypoint-initdb.d/init-master.sql
     healthcheck:
@@ -30,9 +36,16 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
+      TZ: America/Guayaquil
     ports:
       - "3309:3306"
-    command: --server-id=2 --log-bin=mysql-bin --gtid_mode=ON --enforce_gtid_consistency=ON --read_only=ON
+    command: >
+      --server-id=2
+      --log-bin=mysql-bin
+      --gtid_mode=ON
+      --enforce_gtid_consistency=ON
+      --read_only=ON
+      --default-time-zone=-05:00
     volumes:
       - ./db-init/setup-replica.sh:/docker-entrypoint-initdb.d/setup-replica.sh
     depends_on:
@@ -52,6 +65,8 @@ services:
       - NODE_NAME=Nodo 1 (Capacidad Alta)
       - NODE_PORT=5001
       - PYTHONUNBUFFERED=1
+      - SECRET_KEY=${SECRET_KEY:-epn_distribuidas_2026_s4}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
     command: python App/app.py
     ports:
       - "5001:5001"
@@ -74,6 +89,8 @@ services:
       - NODE_NAME=Nodo 2 (Capacidad Media)
       - NODE_PORT=5002
       - PYTHONUNBUFFERED=1
+      - SECRET_KEY=${SECRET_KEY:-epn_distribuidas_2026_s4}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
     command: python App/app.py
     ports:
       - "5002:5002"
@@ -96,6 +113,8 @@ services:
       - NODE_NAME=Nodo 3 (Capacidad Baja)
       - NODE_PORT=5003
       - PYTHONUNBUFFERED=1
+      - SECRET_KEY=${SECRET_KEY:-epn_distribuidas_2026_s4}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
     command: python App/app.py
     ports:
       - "5003:5003"

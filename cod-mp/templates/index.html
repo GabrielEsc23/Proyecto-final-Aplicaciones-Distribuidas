@@ -493,7 +493,7 @@
                             <form action="/agregar" method="POST" class="submission-form">
                                 <input type="hidden" name="tarea_id" value="{{ tarea.id }}">
                                 <label for="respuesta_{{ tarea.id }}">Realizar entrega en texto:</label>
-                                <textarea id="respuesta_{{ tarea.id }}" name="respuesta" rows="4" placeholder="Escribe tu respuesta a la tarea aquí..." required></textarea>
+                                <textarea id="respuesta_{{ tarea.id }}" name="respuesta" rows="4" maxlength="5000" placeholder="Escribe tu respuesta a la tarea aquí..." required></textarea>
                                 <button type="submit" class="btn-submit">Guardar cambios</button>
                             </form>
                         {% endif %}
